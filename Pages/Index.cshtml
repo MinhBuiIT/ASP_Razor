@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@using ASP_RazorWeb.Models
+@{
+    ViewData["Title"] = "Home page";
+    var blogs = ViewData["blogs"] as List<Article>;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+<ul>
+@foreach(var blog in blogs) {
+    <li>@blog.Title</li>
+}
+
+</ul>
