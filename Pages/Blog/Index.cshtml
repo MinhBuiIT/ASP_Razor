@@ -1,0 +1,61 @@
+@page 
+@using ASP_RazorWeb.Models
+@model ASP_RazorWeb.Pages_Blog.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    var searchString = ViewData["searchString"] ?? "";
+}
+@{
+    var paginationModel = new ASP_RazorWeb.Models.Pagination(){
+        currentPage = Model.currentPage,
+        countPage = Model.countPages,
+        generateUrl = (int? p) => "/Blog?pages=" + p
+    };
+
+   
+}
+<h1>Index</h1>
+<partial name="_Pagination2" model="paginationModel"/>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">Tạo mới blog</a>
+</p>
+<form asp-action="/Blog/Index" class="my-3" method="GET">
+    <div class="form-group">
+        <label for="searchString" class="form-label">Tìm kiếm bài post</label>
+        <input type="text" id="searchString" name="searchString" value="@searchString" class="form-control" placeholder="Search...">
+        <button type="submit" class="btn btn-success mt-2">Search</button>
+    </div>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Article[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Article[0].Created)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Article) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-idblog="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-idblog="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-idblog="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

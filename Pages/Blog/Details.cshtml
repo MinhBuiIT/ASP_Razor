@@ -1,0 +1,15 @@
+@page "/Blog/Details/{idblog:int}"
+@model ASP_RazorWeb.Pages_Blog.DetailsModel
+
+@{
+    ViewData["Title"] = @Model.Article.Title;
+}
+
+<h1>@Model.Article.Title</h1>
+<p>Ngày tạo: @Html.DisplayFor(model => model.Article.Created)</p>
+<hr>
+<p>@Html.DisplayFor(model => model.Article.Content)</p>
+<div>
+    <a asp-page="./Edit" asp-route-idblog="@Model.Article.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>
