@@ -1,0 +1,25 @@
+@using Microsoft.AspNetCore.Identity
+@using ASP_RazorWeb.Models
+@inject SignInManager<AppUser> signInManager
+@inject UserManager<AppUser> userManager
+
+<div class="navbar-nav">
+    @if(signInManager.IsSignedIn(User)) {
+        <li class="nav-item">
+          <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">
+          @userManager.GetUserName(User)</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Logout">Đăng Xuất</a>
+        </li>
+    }else {
+        <li class="nav-item">
+          <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Đăng ký</a>
+        </li>
+    }
+    
+</div>
+
