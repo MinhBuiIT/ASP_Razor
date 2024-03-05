@@ -7,10 +7,12 @@
     @if(signInManager.IsSignedIn(User)) {
         <li class="nav-item">
           <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">
-          @userManager.GetUserName(User)</a>
+          Xin chào @userManager.GetUserName(User)</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" asp-area="Identity" asp-page="/Account/Logout">Đăng Xuất</a>
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <button type="submit" class="nav-link border-0 bg-transparent">Đăng xuất</button>
+            </form>
         </li>
     }else {
         <li class="nav-item">

@@ -41,16 +41,16 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Vui lòng nhập {0}")]
+            [EmailAddress(ErrorMessage = "{0} không đúng định dạng")]
             public string Email { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Vui lòng nhập {0}")]
+            [StringLength(100, ErrorMessage = " {0} phải ít nhất {2} và lớn nhất {1} chiều dài ký tự", MinimumLength = 2)]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 

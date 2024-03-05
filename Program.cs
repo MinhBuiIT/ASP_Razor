@@ -1,4 +1,5 @@
 using ASP_RazorWeb.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -37,7 +38,7 @@ services.Configure<IdentityOptions> (options => {
 
     // Cấu hình Lockout - khóa user
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes (5); // Khóa 5 phút
-    options.Lockout.MaxFailedAccessAttempts = 5; // Thất bại 5 lầ thì khóa
+    options.Lockout.MaxFailedAccessAttempts = 3; // Thất bại 5 lầ thì khóa
     options.Lockout.AllowedForNewUsers = true;
 
     // Cấu hình về User.
@@ -48,9 +49,15 @@ services.Configure<IdentityOptions> (options => {
     // Cấu hình đăng nhập.
     options.SignIn.RequireConfirmedEmail = true;            // Cấu hình xác thực địa chỉ email (email phải tồn tại)
     options.SignIn.RequireConfirmedPhoneNumber = false;     // Xác thực số điện thoại
+    options.SignIn.RequireConfirmedAccount = true;  //yêu cầu xác thực email rồi mới cho đăng nhập
 
 });
-
+//Cấu hình Authorization
+services.ConfigureApplicationCookie(options => {
+    options.LoginPath = $"/dangnhap";
+    options.LogoutPath = $"/dangxuat";
+    options.AccessDeniedPath = $"/denied";
+});
 
 var app = builder.Build();
 
@@ -67,9 +74,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+//Authorization phải đặt trước Authentication
+app.UseAuthorization();
 
 app.MapRazorPages();
 
 app.Run();
+
+
+// Có hai pthuc đăng nhập signInManager.SignInAsync(user,false)
+//                         signInManager.PasswordSignInAsync(username,password,isPersistent,lockoutOnFailure)

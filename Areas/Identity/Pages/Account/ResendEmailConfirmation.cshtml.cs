@@ -79,8 +79,8 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account
                 protocol: Request.Scheme);
             await _emailSender.SendEmailAsync(
                 Input.Email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                "Xác nhận Email",
+                $"Vui lòng xác nhận tài khoản <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>tại đây</a>.");
 
             ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
             return Page();
