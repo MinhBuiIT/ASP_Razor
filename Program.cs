@@ -59,6 +59,22 @@ services.ConfigureApplicationCookie(options => {
     options.AccessDeniedPath = $"/denied";
 });
 
+//Cấu hình external Login
+services.AddAuthentication()
+        .AddGoogle(options => {
+            var googleSettings = builder.Configuration.GetSection("Authentication:Google");
+            options.ClientId = googleSettings["ClientId"];
+            options.ClientSecret = googleSettings["ClientSecret"];
+            //signin-google
+            options.CallbackPath = "/dang-nhap-tu-google";
+        })
+        .AddFacebook(options => {
+            var faceSettings = builder.Configuration.GetSection("Authentication:Facebook");
+            options.ClientId = faceSettings["ClientId"];
+            options.ClientSecret = faceSettings["ClientSecret"];
+            //signin-google
+            options.CallbackPath = "/dang-nhap-tu-facebook";
+        });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

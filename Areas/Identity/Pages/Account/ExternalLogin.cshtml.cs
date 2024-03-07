@@ -69,6 +69,7 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        /// TempData như là session
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -102,21 +103,23 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             if (remoteError != null)
             {
-                ErrorMessage = $"Error from external provider: {remoteError}";
+                ErrorMessage = $"Lỗi cung cấp dịch vụ ngoài: {remoteError}";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
-                ErrorMessage = "Error loading external login information.";
+                ErrorMessage = "Lỗi không thể lấy được thông tin dịch vụ ngoài";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            // Khi user đã có tài khoản rùi
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor : true);
+            _logger.LogInformation(result.Succeeded.ToString());
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
@@ -146,12 +149,77 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
-                ErrorMessage = "Error loading external login information during confirmation.";
+                ErrorMessage = "Lỗi không thể lấy thông tin dịch vụ ngoài";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
             if (ModelState.IsValid)
             {
+                //nếu nhập email trùng với email của liên kết ngoài và có trong db => xử lý liên kết
+                //nếu nhập email trùng với email của liên kết ngoài không có db => tạo tkhoan, dky, lien ket
+                //neu nhập email khác với email của liên kết ngoài mà 2 email đều có trong db => lỗi
+                //nếu nhập email khác với email của liên kết ngoài mà email lket ngoài có trong db, email nhập không có trong db => lỗi
+                var registerEmailUser = await _userManager.FindByEmailAsync(Input.Email);
+                string externalEmail = null;
+                if(info.Principal.HasClaim(c => c.Type == ClaimTypes.Email)) {
+                    externalEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
+                }
+                AppUser externalEmailUser = null;
+                if(externalEmail != null) {
+                    externalEmailUser = await _userManager.FindByEmailAsync(externalEmail);
+                }
+                if(externalEmailUser != null && registerEmailUser != null) {
+                    if(externalEmailUser.Id == registerEmailUser.Id) {
+                        var resultLink = await _userManager.AddLoginAsync(registerEmailUser,info);
+                        if(resultLink.Succeeded) {
+                            await _signInManager.SignInAsync(registerEmailUser,isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }else {
+                            ModelState.AddModelError(String.Empty,"Liên kết tài khoản không thành công");
+                            return Page();
+                        }
+                    }else {
+                        //neu nhập email khác với email của liên kết ngoài mà 2 email đều có trong db
+                        ModelState.AddModelError(String.Empty,"Vui lòng chọn email liên kết khác");
+                        return Page();
+                    }
+                }
+
+
+                if(externalEmailUser != null && registerEmailUser == null) {
+                    ModelState.AddModelError(String.Empty,"Email đăng ký không tồn tại");
+                    return Page();
+                }
+                if(externalEmailUser == null && registerEmailUser != null) { 
+                    ModelState.AddModelError(String.Empty,"Email liên kết không tồn tại ");
+                    return Page();
+                }
+                if(externalEmailUser == null && registerEmailUser == null) {
+                    if(externalEmail == Input.Email) {
+                        AppUser newUser = CreateUser();
+                        await _userStore.SetUserNameAsync(newUser,Input.Email,CancellationToken.None);
+                        await _emailStore.SetEmailAsync(newUser,Input.Email,CancellationToken.None);
+                        var resultNew = await _userManager.CreateAsync(newUser);
+                        if(resultNew.Succeeded) {
+                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                            await _userManager.ConfirmEmailAsync(newUser,code);
+                            var resultLinkNew = await _userManager.AddLoginAsync(newUser,info);
+                            if(resultLinkNew.Succeeded) {
+                                await _signInManager.SignInAsync(newUser,isPersistent:false);
+                                return LocalRedirect(returnUrl);
+                            }else {
+                                ModelState.AddModelError(String.Empty,"Liên kết không thành công");
+                                return Page();
+                            }
+                        }else {
+                            ModelState.AddModelError(String.Empty,"Tạo tài khoản không thành công");
+                                return Page();
+                        }
+                    }else {
+                        ModelState.AddModelError(String.Empty,"Email không trùng khớp");
+                        return Page();
+                    }
+                }
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
