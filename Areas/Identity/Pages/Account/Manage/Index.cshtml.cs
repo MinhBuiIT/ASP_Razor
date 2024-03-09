@@ -7,12 +7,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using ASP_RazorWeb.Models;
+using Bogus.DataSets;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.VisualBasic;
 
 namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
@@ -56,9 +60,14 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Phone]
+            [RegularExpression(@"(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})",ErrorMessage = "Số điện thoại không đúng định dạng Việt Nam")]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            public string HomeAddress{get;set;}
+
+            [MyDateOfBirth]
+            public DateTime? DateOfBirth{get;set;}
         }
 
         private async Task LoadAsync(AppUser user)
@@ -70,12 +79,15 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                HomeAddress = user.HomeAddress,
+                DateOfBirth = user.DateOfBirth
             };
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
+            //Lấy user -> nếu truy cập vào url mà chưa đăng nhập thì NotFound
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -100,19 +112,18 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
-                }
+            user.PhoneNumber = Input.PhoneNumber;
+            user.HomeAddress = Input.HomeAddress;
+            user.DateOfBirth = Input.DateOfBirth;
+            var resultUpdate = await _userManager.UpdateAsync(user);
+
+            if(!resultUpdate.Succeeded) {
+                StatusMessage = "Cập nhật không thành công";
+                return RedirectToPage();
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "Thông tin đã được cập nhật";
             return RedirectToPage();
         }
     }

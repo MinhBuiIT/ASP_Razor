@@ -8,14 +8,17 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using ASP_RazorWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class EmailModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
@@ -102,6 +105,7 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
         public async Task<IActionResult> OnPostChangeEmailAsync()
         {
             var user = await _userManager.GetUserAsync(User);
+            
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -112,7 +116,12 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
                 await LoadAsync(user);
                 return Page();
             }
-
+            var userExistEmail = await _userManager.FindByEmailAsync(Input.NewEmail);
+            if(userExistEmail != null) {
+                await LoadAsync(user);
+                ModelState.AddModelError(String.Empty,"Email đã tồn tại. Vui lòng chọn email khác");
+                return Page();
+            }
             var email = await _userManager.GetEmailAsync(user);
             if (Input.NewEmail != email)
             {
@@ -126,14 +135,14 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
                     protocol: Request.Scheme);
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Xác nhận email",
+                    $"Vui lòng xác nhận tài khoản bằng cách <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>tại đây</a>.");
 
-                StatusMessage = "Confirmation link to change email sent. Please check your email.";
+                StatusMessage = "Kiểm tra email để xác nhận";
                 return RedirectToPage();
             }
 
-            StatusMessage = "Your email is unchanged.";
+            StatusMessage = "Email bạn không được thay đổi";
             return RedirectToPage();
         }
 
@@ -160,12 +169,10 @@ namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            await _emailSender.SendEmailAsync(Input.NewEmail, "Xác nhận Email",
+                        $"Xác nhận email của bạn nhấn <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-            StatusMessage = "Verification email sent. Please check your email.";
+            StatusMessage = "Xác nhận email đã gửi.";
             return RedirectToPage();
         }
     }

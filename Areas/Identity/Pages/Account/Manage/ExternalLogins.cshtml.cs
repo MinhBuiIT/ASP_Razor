@@ -9,12 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using ASP_RazorWeb.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ASP_RazorWeb.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class ExternalLoginsModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;

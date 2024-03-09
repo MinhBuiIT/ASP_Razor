@@ -49,7 +49,7 @@ services.Configure<IdentityOptions> (options => {
     // Cấu hình đăng nhập.
     options.SignIn.RequireConfirmedEmail = true;            // Cấu hình xác thực địa chỉ email (email phải tồn tại)
     options.SignIn.RequireConfirmedPhoneNumber = false;     // Xác thực số điện thoại
-    options.SignIn.RequireConfirmedAccount = true;  //yêu cầu xác thực email rồi mới cho đăng nhập
+    options.SignIn.RequireConfirmedAccount = false;  //yêu cầu xác thực email rồi mới cho đăng nhập
 
 });
 //Cấu hình Authorization
