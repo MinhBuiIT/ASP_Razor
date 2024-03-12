@@ -75,6 +75,8 @@ services.AddAuthentication()
             //signin-google
             options.CallbackPath = "/dang-nhap-tu-facebook";
         });
+//Add dịch vụ custom message trùng name role
+services.AddTransient<IdentityErrorDescriber,AppIdentityErrorDescriber>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

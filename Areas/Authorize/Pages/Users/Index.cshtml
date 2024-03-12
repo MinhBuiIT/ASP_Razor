@@ -1,0 +1,41 @@
+﻿@page "/users/list"
+@model ASP_RazorWeb.Pages.Roles.Users.IndexModel
+@{
+    ViewData["Title"] = "Danh sách User";
+}
+<h1>@ViewData["Title"]</h1>
+<partial name="_StatusMessage" model="@Model.StatusMessage"/>
+<p class="text-dark my-3">Tổng số user <strong>@Model.totalUser</strong></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">UserName</th>
+            <th scope="col">Các Role</th>
+            <th scope="col">Tác vụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var user in Model.Users) {
+            <tr>
+                <td>@user.UserName</td>
+                @if(String.IsNullOrEmpty(user.RoleName)) {
+                    <td><a asp-page="./AddRole" asp-route-userid="@user.Id" class="text-dark text-decoration-none">+ Thêm Role</a></td>
+                }else {
+                    <td><a asp-page="./AddRole" asp-route-userid="@user.Id" class="text-dark text-decoration-none">@user.RoleName</a></td>
+                }
+                <td>
+                    <a asp-page="./SetPassword" asp-route-userid="@user.Id" class="btn btn-success btn-sm">Đặt Mật Khẩu</a>
+                </td>
+             </tr>
+        }
+        
+    </tbody>
+</table>
+@{
+    var pagination = new ASP_RazorWeb.Models.Pagination(){
+        currentPage = Model.currentPage,
+        countPage = Model.countPage,
+        generateUrl = (int? p) => "/users/list?pages="+p
+    };
+}
+<partial name="/Pages/Shared/_Pagination2.cshtml" model="pagination"/>

@@ -1,0 +1,28 @@
+﻿@page "/roles/list"
+@model ASP_RazorWeb.Pages.Roles.IndexModel
+@{
+    ViewData["Title"] = "Danh sách Role";
+}
+<h1>@ViewData["Title"]</h1>
+<partial name="_StatusMessage" model="@Model.StatusMessage"/>
+<a asp-page="./Create" class="btn btn-primary">Tạo Role mới</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Tên Role</th>
+            <th scope="col">Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var role in Model.roleList) {
+            <tr>
+                <td>@role.Name</td>
+                <td>
+                    <a asp-page="./Edit" asp-route-roleid="@role.Id" class="btn btn-primary btn-sm">Cập nhật</a>
+                    <a asp-page="./Delete" asp-route-roleid="@role.Id" class="btn btn-primary btn-sm">Xóa</a>
+                </td>
+             </tr>
+        }
+        
+    </tbody>
+</table>

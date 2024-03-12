@@ -1,0 +1,27 @@
+﻿@page "/roles/create"
+@model ASP_RazorWeb.Pages.Roles.CreateModel
+@{
+    ViewData["Title"] = "Tạo Role";
+}
+<h1>@ViewData["Title"]</h1>
+<partial name="_StatusMessage" model="@Model.StatusMessage"/>
+<div class="row">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">
+        <form method="post">
+            <div class="form-group">
+                <label asp-for="@Model.Input.Name" class="form-label"></label>
+                <input asp-for="@Model.Input.Name" class="form-control">
+                <span asp-validation-for="@Model.Input.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3" >
+                <button type="submit" class="btn btn-success">Tạo</button>
+                <a asp-page="./Index" class="btn btn-success">Danh sách các Roles</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

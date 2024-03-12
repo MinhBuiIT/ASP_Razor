@@ -1,0 +1,36 @@
+﻿@page "/users/add-role/{userid}"
+@model ASP_RazorWeb.Pages.Roles.Users.AddRoleModel
+@{
+    ViewData["Title"] = "Thêm role";
+}
+<h1>@ViewData["Title"] - @Model.User.UserName</h1>
+<partial name="_StatusMessage" model="@Model.StatusMessage"/>
+<div class="row mt-3">
+    <div class="col-md-6">
+        <form id="set-password-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-group mb-3">
+                @Html.ListBoxFor(m => m.RoleNames,Model.RoleAll,new {
+                    id = "id-select-role",
+                    @class ="bg-white w-100"
+                })
+            </div>
+            <button type="submit" class=" btn btn-md btn-primary">Lưu lại</button>
+            <a asp-page="./Index" class="btn btn-md btn-primary">Danh sách user</a>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/lib/multiple-select.min.js"></script>
+    <script>
+        $("#id-select-role").multipleSelect({
+            selectAll: false,
+            isOpen:false,
+            keepOpen:false,
+            placeholder: "Vui lòng chọn Role"
+        })
+    </script>
+}
+@section CSS {
+    <link rel="stylesheet" href="~/lib/multiple-select.min.css">
+}
