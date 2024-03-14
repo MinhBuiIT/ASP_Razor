@@ -18,6 +18,24 @@
             <button type="submit" class=" btn btn-md btn-primary">Lưu lại</button>
             <a asp-page="./Index" class="btn btn-md btn-primary">Danh sách user</a>
         </form>
+        <hr>
+        <p>Các claim của user có được từ role</p>
+        <ul>
+            @if(Model.roleClaimList.Count > 0) {
+                foreach (var roleClaim in Model.roleClaimList) {
+                    <li>@roleClaim.ClaimType: @roleClaim.ClaimValue</li>
+                }
+            }
+        </ul>
+        <hr>
+        <p>Các claim riêng của user <a asp-page="./EditUserClaim" asp-route-userid="@Model.User.Id" asp-page-handler="Add">+ Thêm claim riêng</a></p>
+        <ul>
+            @if(Model.userClaimList.Count > 0) {
+                foreach (var userClaim in Model.userClaimList) {
+                    <li><a asp-page="./EditUserClaim" asp-route-claimid="@userClaim.Id" asp-page-handler="Edit">@userClaim.ClaimType: @userClaim.ClaimValue</a></li>
+                }
+            }
+        </ul>
     </div>
 </div>
 @section Scripts {

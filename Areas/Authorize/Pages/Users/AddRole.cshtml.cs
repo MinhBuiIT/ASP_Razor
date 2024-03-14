@@ -12,12 +12,14 @@ namespace ASP_RazorWeb.Pages.Roles.Users
     {
         UserManager<AppUser> _userManager;
         RoleManager<IdentityRole> _roleManager;
+        BlogContext _blogContext;
 
         [TempData]
         public string StatusMessage{get;set;}
-        public AddRoleModel(UserManager<AppUser> userManager,RoleManager<IdentityRole> roleManager) { 
+        public AddRoleModel(UserManager<AppUser> userManager,RoleManager<IdentityRole> roleManager,BlogContext blogContext) { 
             _userManager = userManager;
             _roleManager = roleManager;
+            _blogContext = blogContext;
         }
         public AppUser? User { get; set; }
 
@@ -25,6 +27,8 @@ namespace ASP_RazorWeb.Pages.Roles.Users
         public string[] RoleNames { get; set; }
         public SelectList RoleAll{get; set; }
 
+        public List<IdentityRoleClaim<string>>? roleClaimList{get; set; }
+        public List<IdentityUserClaim<string>>? userClaimList{get; set; }
         public async Task<IActionResult> OnGet(string userid)
         {
             if(userid == null) return NotFound("Không tìm thấy User");
@@ -34,7 +38,21 @@ namespace ASP_RazorWeb.Pages.Roles.Users
             RoleNames = (await _userManager.GetRolesAsync(User)).ToArray();
             string[] roleNameList =  _roleManager.Roles.Select(r => r.Name).ToArray();
             RoleAll = new SelectList(roleNameList);
+            
+            await GetClaimList(userid);
             return Page();
+        }
+
+        async Task GetClaimList(string userid) {
+            var roleList = from r in _blogContext.Roles
+                            join u in _blogContext.UserRoles on r.Id equals u.RoleId
+                            where u.UserId == userid
+                            select r;
+            roleClaimList = await (from r in roleList
+                                join rl in _blogContext.RoleClaims on r.Id equals rl.RoleId
+                                select rl).ToListAsync();
+            userClaimList = await (from uc in _blogContext.UserClaims
+                                where uc.UserId == userid select uc).ToListAsync();
         }
         public async Task<IActionResult> OnPostAsync(string userid)  {
             if(userid == null) return NotFound("Không tìm thấy User");
@@ -48,6 +66,7 @@ namespace ASP_RazorWeb.Pages.Roles.Users
                 ModelState.AddModelError("","Vui lòng đặt mật khẩu cho user này trước");
                 return Page();
             }
+            await GetClaimList(userid);
             //roleNames
             var OldRoleNames = (await _userManager.GetRolesAsync(User)).ToList();
 

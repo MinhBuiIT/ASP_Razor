@@ -16,7 +16,13 @@
     <tbody>
         @foreach(var role in Model.roleList) {
             <tr>
-                <td>@role.Name</td>
+                <td>
+                    <p>@role.Name</p>
+                    @foreach(var claim in role.Claims) {
+                        <small>@claim</small>
+                        <br/>
+                    }
+                </td>
                 <td>
                     <a asp-page="./Edit" asp-route-roleid="@role.Id" class="btn btn-primary btn-sm">Cập nhật</a>
                     <a asp-page="./Delete" asp-route-roleid="@role.Id" class="btn btn-primary btn-sm">Xóa</a>

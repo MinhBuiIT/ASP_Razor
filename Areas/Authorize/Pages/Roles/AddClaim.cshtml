@@ -1,0 +1,32 @@
+﻿@page "/claim/create/{roleid}"
+@model ASP_RazorWeb.Pages.Roles.AddClaimModel
+@{
+    ViewData["Title"] = "Tạo Role";
+}
+<h1>@ViewData["Title"]</h1>
+<partial name="_StatusMessage" model="@Model.StatusMessage"/>
+<div class="row">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">
+        <form method="post">
+            <div class="form-group">
+                <label asp-for="@Model.Input.ClaimType" class="form-label"></label>
+                <input asp-for="@Model.Input.ClaimType" class="form-control">
+                <span asp-validation-for="@Model.Input.ClaimType" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <label asp-for="@Model.Input.ClaimValue" class="form-label"></label>
+                <input asp-for="@Model.Input.ClaimValue" class="form-control">
+                <span asp-validation-for="@Model.Input.ClaimValue" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3" >
+                <button type="submit" class="btn btn-success">Tạo mới</button>
+                <a asp-page="./Edit" class="btn btn-success" asp-route-roleid="@Model.role.Id">Edit Role</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

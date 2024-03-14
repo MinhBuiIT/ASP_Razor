@@ -12,10 +12,24 @@ namespace ASP_RazorWeb.Pages.Roles
         public IndexModel(RoleManager<IdentityRole> roleManager, BlogContext blogContext) : base(roleManager, blogContext)
         {
         }
-        public List<IdentityRole> roleList{get;set;}
+
+        public class RoleClaimModel: IdentityRole {
+            public string[] Claims { get; set; }
+        }
+        public List<RoleClaimModel> roleList{get;set;} = new List<RoleClaimModel>();
         public async Task<IActionResult> OnGet()
         {
-            roleList = _roleManager.Roles.OrderBy(r => r.Name).ToList();
+            var roles = _roleManager.Roles.OrderBy(r => r.Name).ToList();
+            foreach (var r in roles)
+            {
+                var claims = (await _roleManager.GetClaimsAsync(r)).Select(c => c.Type + " - " + c.Value).ToArray();
+                RoleClaimModel roleClaimModel = new RoleClaimModel(){
+                    Id = r.Id,
+                    Name = r.Name,
+                    Claims = claims
+                };
+                roleList.Add(roleClaimModel);
+            }
             return Page();
         }
     }

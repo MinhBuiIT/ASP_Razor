@@ -77,6 +77,18 @@ services.AddAuthentication()
         });
 //Add dịch vụ custom message trùng name role
 services.AddTransient<IdentityErrorDescriber,AppIdentityErrorDescriber>();
+//Add Policy
+services.AddAuthorization(options => {
+    options.AddPolicy("EditRole",policyBuilder => {
+        policyBuilder.RequireAuthenticatedUser();
+        // policyBuilder.RequireRole("Administrator");
+        // policyBuilder.RequireRole("Editor");
+        // policyBuilder.RequireClaim("Ten Claim",new string[]{"gia tri 1","gia tri 2"});
+        // policyBuilder.RequireClaim("manager","edit","add");
+        policyBuilder.RequireClaim("role","edit");
+
+    });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -103,3 +115,11 @@ app.Run();
 
 // Có hai pthuc đăng nhập signInManager.SignInAsync(user,false)
 //                         signInManager.PasswordSignInAsync(username,password,isPersistent,lockoutOnFailure)
+
+/*
+Identity: -Authentication: xác thực danh tính => login, register
+          -Authorization: phân quyền
+           + Role-based authorization: phân quyền theo vai trò
+           + Policy-based authorization: phân quyền theo chinh sách
+           + Claimed-based authorization: Claim => đặc tính tính chất đối tượng
+*/
